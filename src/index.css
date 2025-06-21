@@ -3,6 +3,26 @@
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+body {
+  font-family: "Amazon Ember", "Roboto", Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -101,4 +121,12 @@
 }
 .bg-app-table-header {
   background-color: var(--color-table-header);
+}
+
+.container-app {
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }

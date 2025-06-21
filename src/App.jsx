@@ -2,14 +2,17 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import SignupPage from "./pages/SignupPage";
-import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
 import HomePage from "./pages/HomePage";
-import SellerRoutes from "./routes/SellerRoutes";
+import ProductPage from "./pages/ProductPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrdersPage from "./pages/OrdersPage";
+import ProfilePage from "./pages/ProfilePage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import RequireSeller from "./components/RequireSeller";
 
 export default function App() {
   const [theme, setTheme] = useState("light");
@@ -19,9 +22,25 @@ export default function App() {
       <Router>
         <Routes>
           <Route element={<MainLayout theme={theme} setTheme={setTheme} />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route index element={<HomePage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/profile"
               element={
@@ -30,15 +49,9 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Seller routes are now handled in SellerRoutes */}
-            <Route
-              path="/seller/*"
-              element={
-                <RequireSeller>
-                  <SellerRoutes />
-                </RequireSeller>
-              }
-            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </Router>
