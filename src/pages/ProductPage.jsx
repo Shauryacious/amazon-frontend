@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchProductById } from "../api/productApi";
+import { useAuth } from "../context/AuthContext";
+import ReviewForm from "../components/ReviewForm";
+import ReviewList from "../components/ReviewList";
 
 // Dummy for ratings (replace with real data as needed)
 const renderStars = (rating = 4) => (
@@ -20,37 +23,15 @@ const renderStars = (rating = 4) => (
   </span>
 );
 
-const PrimeBadge = () => (
-  <span className="inline-flex items-center ml-2">
-    <svg
-      width="44"
-      height="16"
-      viewBox="0 0 44 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4"
-    >
-      <text
-        x="0"
-        y="12"
-        fontFamily="Amazon Ember, Arial, sans-serif"
-        fontWeight="bold"
-        fontSize="12"
-        fill="#00A8E1"
-      >
-        prime
-      </text>
-      <polygon points="36,8 44,8 40,15" fill="#F6A800" />
-    </svg>
-  </span>
-);
-
 export default function ProductPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [refreshReviewsFlag, setRefreshReviewsFlag] = useState(false);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchProductById(id)
@@ -58,6 +39,9 @@ export default function ProductPage() {
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // To trigger review list refresh after submission
+  const refreshReviews = () => setRefreshReviewsFlag((f) => !f);
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (!product) return <div className="p-8">Product not found.</div>;
@@ -116,7 +100,6 @@ export default function ProductPage() {
             <span className="text-2xl font-bold text-[#B12704]">
               ₹{product.price?.toLocaleString()}
             </span>
-            <PrimeBadge />
           </div>
           <div className="text-xs text-gray-600 mb-2">
             M.R.P.:{" "}
@@ -216,6 +199,29 @@ export default function ProductPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* --- Reviews Section --- */}
+      <div className="mt-10 max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
+        {/* Review Form: only for logged-in consumers */}
+        {user?.role === "consumer" ? (
+          <div className="mb-6">
+            <ReviewForm productId={product._id} onSuccess={refreshReviews} />
+          </div>
+        ) : (
+          <div className="mb-6 text-gray-500 text-sm">
+            {user
+              ? "Only consumers can leave a review."
+              : "Please log in as a consumer to leave a review."}
+          </div>
+        )}
+
+        {/* Review List */}
+        <ReviewList
+          productId={product._id}
+          key={refreshReviewsFlag} // Forces remount to refresh
+        />
       </div>
     </div>
   );
