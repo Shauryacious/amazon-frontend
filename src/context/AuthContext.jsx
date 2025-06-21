@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { fetchProfile, logout as apiLogout } from "../api";
+import { CLIENT_TYPE } from "../constants/clientType";
 
 const AuthContext = createContext();
 
@@ -17,7 +18,7 @@ export function AuthProvider({ children }) {
   const refreshUser = async () => {
     setLoading(true);
     try {
-      const res = await fetchProfile();
+      const res = await fetchProfile(CLIENT_TYPE);
       setUser(res.data.user);
     } catch {
       setUser(null);
@@ -27,7 +28,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await apiLogout();
+    await apiLogout(CLIENT_TYPE);
     setUser(null);
   };
 

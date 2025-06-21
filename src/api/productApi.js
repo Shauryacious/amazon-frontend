@@ -1,14 +1,10 @@
 // src/api/productApi.js
 import apiClient from "./config";
 
-// productData MUST be a FormData object for file upload
-export const createProduct = (formData) =>
-    apiClient.post("/api/products/create", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    });
+// Fetch all products for consumers (public endpoint)
+export const fetchAllProducts = () =>
+    apiClient.get("/api/products");
 
-export const fetchMyProducts = () =>
-    apiClient.get("/api/products/mine");
-
+// Optionally, fetch a single product by ID
+export const fetchProductById = (productId) =>
+    apiClient.get(`/api/products/${productId}`);

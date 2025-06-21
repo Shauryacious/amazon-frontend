@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaShoppingCart, FaMapMarkerAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
@@ -6,17 +6,31 @@ import { useAuth } from "../../context/AuthContext";
 export default function Header() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const hideTimeout = useRef();
 
   const handleAccountClick = () => {
     if (!user) {
       navigate("/login");
+    } else {
+      setShowDropdown((prev) => !prev);
     }
-    // Optionally, open a dropdown for account management
   };
 
   const handleSignOut = async () => {
+    setShowDropdown(false);
     await logout();
     navigate("/login");
+  };
+
+  // Dropdown show/hide logic with delay
+  const handleMouseEnter = () => {
+    clearTimeout(hideTimeout.current);
+    setShowDropdown(true);
+  };
+
+  const handleMouseLeave = () => {
+    hideTimeout.current = setTimeout(() => setShowDropdown(false), 180); // 180ms delay
   };
 
   return (
@@ -61,8 +75,13 @@ export default function Header() {
           <div className="flex items-center gap-2 ml-4">
             {/* Account & Lists */}
             <div
-              className="relative cursor-pointer px-2 py-1 rounded hover:bg-[#232f3e]/80 transition group"
+              className="relative cursor-pointer px-2 py-1 rounded hover:bg-[#232f3e]/80 transition"
+              tabIndex={0}
               onClick={handleAccountClick}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onFocus={handleMouseEnter}
+              onBlur={handleMouseLeave}
             >
               <span className="block text-xs">
                 {user
@@ -72,9 +91,13 @@ export default function Header() {
               <span className="block font-bold">
                 {user ? "Account" : "Account & Lists"}
               </span>
-              {/* Show Sign Out on hover if logged in */}
-              {user && (
-                <div className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg py-2 px-4 z-20 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition">
+              {/* Show Sign Out on dropdown if logged in */}
+              {user && showDropdown && (
+                <div
+                  className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg py-2 px-4 z-20 min-w-[120px]"
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <button
                     onClick={handleSignOut}
                     className="block w-full text-left text-sm hover:underline"
@@ -108,7 +131,7 @@ export default function Header() {
       </div>
       {/* Sub-navigation */}
       <nav className="bg-[#232f3e] px-4 border-t border-[#232f3e] shadow-sm">
-        <ul className="flex gap-2 text-sm font-semibold max-w-[1500px] mx-auto py-2">
+        <ul className="flex gap-2 text-sm font-semibold max-w-[1500px] mx-auto py-2 text-white">
           <li className="cursor-pointer px-2 py-1 rounded hover:bg-[#37475a]/60">
             All
           </li>
